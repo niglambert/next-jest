@@ -2,35 +2,127 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### Install LTS Node Version with nvm
+```
+# Install Node Version Manager
+https://github.com/coreybutler/nvm-windows/releases -> nvm-setup.zip
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install the LTS version of Node
+nvm install v22.14.0
+nvm use v22.14.0
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Create Next App
+```
+# Example Next.js app with Jest app looks old & uses the pages router
+# npx create-next-app@latest --example with-jest with-jest-app
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Instead create a new project & add Jest
+npx create-next-app@latest next-jest
 
-## Learn More
+√ Would you like to use TypeScript? ... No / Yes
+√ Would you like to use ESLint? ... No / Yes
+√ Would you like to use Tailwind CSS? ... No / Yes
+√ Would you like your code inside a `src/` directory? ... No / Yes
+√ Would you like to use App Router? (recommended) ... No / Yes
+√ Would you like to use Turbopack for `next dev`? ... No / Yes
+√ Would you like to customize the import alias (`@/*` by default)? ... No / Yes
+Creating a new Next.js app in C:\TEMP\next-jest.
 
-To learn more about Next.js, take a look at the following resources:
+cd next-jest
+code .
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Install Jest Packages
+```
+# Add Jest package dependencies
+# Refer to https://nextjs.org/docs/pages/building-your-application/testing/jest
+npm install -D jest jest-environment-jsdom @testing-library/react @testing-library/dom @testing-library/jest-dom ts-node
+npm install -D import @testing-library/user-event 
+npm init jest@latest
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Configure a **TypeScript** Jest Config File
+```
+# Create the jest.config.ts
+npm init jest@latest
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> next-jest@0.1.0 npx
+> create-jest
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+The following questions will help Jest to create a suitable configuration for your project
+
+√ Would you like to use Jest when running "test" script in "package.json"? ... yes
+√ Would you like to use Typescript for the configuration file? ... **yes**
+√ Choose the test environment that will be used for testing » node
+√ Do you want Jest to add coverage reports? ... no
+√ Which provider should be used to instrument code for coverage? » v8
+√ Automatically clear mock calls, instances, contexts and results before every test? ... no
+
+✏️  Modified C:\TEMP\next-jest\package.json
+
+📝  Configuration file created at C:\TEMP\next-jest\jest.config.ts
+```
+
+
+### Overwrite jest.config.ts
+```
+// jest.config.ts
+// Refer to https://nextjs.org/docs/pages/building-your-application/testing/jest
+
+import type { Config } from 'jest'
+import nextJest from 'next/jest.js'
+ 
+const createJestConfig = nextJest({
+  dir: './',
+})
+ 
+// Add any custom config to be passed to Jest
+const config: Config = {
+  coverageProvider: 'v8',
+  testEnvironment: 'jsdom',
+}
+ 
+export default createJestConfig(config)
+```
+
+### Update package.json
+```
+// Update package.json to re-run Jest on file change 
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+```
+
+### Create Home page
+```
+// app/pages.tsx
+export default function Home() {
+  return <h1>Home</h1>
+}
+```
+
+### Add Test Suite
+```
+// __tests__/index.test.js
+import '@testing-library/jest-dom'
+import { render, screen } from '@testing-library/react'
+import Home from '@/app/page'
+
+describe('Home', () => {
+    it('renders a heading', () => {
+        render(<Home />)
+        const heading = screen.getByRole('heading', { level: 1 })
+        expect(heading).toBeInTheDocument()
+    });
+    test('run a case insensitive search', () => {
+        render(<Home />)
+        const heading = screen.getByText(/home/i)
+        expect(heading).toBeInTheDocument()
+    })
+})
+```
